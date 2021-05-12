@@ -3,7 +3,7 @@
 ############################################################
 RM 			= @rm -rfv
 CC = g++
-CFLAGS = -g -Wall -std=c++11
+CFLAGS = -g -Wall -std=c++11 
 
 SRCS = $(wildcard ./*.cpp)
 
@@ -25,7 +25,7 @@ SRCS = $(wildcard ./*.cpp)
 PROG      = $(notdir $(shell pwd))	## current foldername is target name
 
 OPENCV = `pkg-config opencv --cflags --libs`
-LIBS = $(OPENCV)
+LIBS = $(OPENCV) -lstdc++fs
 
 $(PROG):$(SRCS)
 	$(CC) $(CFLAGS) -o $(PROG) $(SRCS) $(LIBS)
