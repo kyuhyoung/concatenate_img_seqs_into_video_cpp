@@ -66,6 +66,8 @@ Mat resize_image(const Mat& im_ori, int w_new, int h_new, float fx, float fy, in
 	else if(max_side < max_wh)
 	{
 		float ratio = float(max_side) / float(max_wh);
+        w_new = 2 * int(float(im_ori.cols) * ratio / 2.0);
+        ratio = float(w_new) / float(im_ori.cols);
 		resize(im_ori, im_resized, Size(0, 0), ratio, ratio);
 	}
 	else if(max_side > 0)
@@ -84,11 +86,49 @@ Mat resize_image(const Mat& im_ori, int w_new, int h_new, float fx, float fy, in
 VideoWriter init_video_writer(const string& fn_path, double fps, const Size& saiz)
 {
 	VideoWriter writer;
-	writer.open(fn_path, VideoWriter::fourcc('X', 'V', 'I', 'D'), fps, saiz, true);
-	if (!writer.isOpened())
-	{
-		cout << "동영상을 저장하기 위한 초기화 작업 중 에러 발생" << endl;	exit(0);
-	}
+    cout << "fps : " << fps << endl;
+    cout << "saiz : " << saiz << endl;
+    writer.open(fn_path, VideoWriter::fourcc('H', '2', '6', '4'), fps, saiz, true);
+    if (!writer.isOpened())
+    {
+        writer.open(fn_path, VideoWriter::fourcc('X', 'V', 'I', 'D'), fps, saiz, true);
+        if (!writer.isOpened())
+        {
+            writer.open(fn_path, VideoWriter::fourcc('M', 'P', '4', 'V'), fps, saiz, true);
+            if (!writer.isOpened())
+            {
+                writer.open(fn_path, VideoWriter::fourcc('X', '2', '6', '4'), fps, saiz, true);
+                if (!writer.isOpened())
+                {
+                    writer.open(fn_path, VideoWriter::fourcc('M', 'J', 'P', 'G'), fps, saiz, true);
+                    if (!writer.isOpened())
+                    {
+                        cout << "동영상을 저장하기 위한 초기화 작업 중 에러 발생" << endl;	exit(0);
+                    }    
+                    else
+                    {
+                        cout << "Codec : MJPG OK" << endl;
+                    }
+                }
+                else
+                {
+                    cout << "Codec : X264 OK" << endl;
+                }
+            }
+            else
+            {
+                cout << "Codec : MP4V OK" << endl;
+            }
+        }
+        else
+        {
+            cout << "Codec : XVID OK" << endl;
+        }
+    }
+    else
+    {
+        cout << "Codec : H264 OK" << endl;
+    }
 	return writer;
 }
 
@@ -530,6 +570,7 @@ void concatenate_images_from_seqeunces_into_video_or_sequence(vector< vector<str
     //GifWriter writer = {};
     if(0 > neg_vid_0_seq_pos_gif)
     {
+        //path_vid_or_gif = python_join_equivalent(dir_save, "output.mp4");
         path_vid_or_gif = python_join_equivalent(dir_save, "output.avi");
     }
     else if(0 < neg_vid_0_seq_pos_gif)
@@ -581,7 +622,11 @@ void concatenate_images_from_seqeunces_into_video_or_sequence(vector< vector<str
 	if(0 > neg_vid_0_seq_pos_gif) 
     { 
         cout << "concatenated video has just saved at : " << path_vid_or_gif << endl;  
-        vw.release(); 
+        vw.release();
+        string str_ffmpeg = "ffmpeg -y -i " + path_vid_or_gif + " " + python_join_equivalent(dir_save, "output.mp4");
+        cout << "str_ffmpeg : " << str_ffmpeg << endl;    //exit(0);
+        std::system(str_ffmpeg.c_str());  
+ 
     }
     else if(0 < neg_vid_0_seq_pos_gif)
     {
