@@ -4,5 +4,5 @@ Concatenate images from multiple directories into a video (and then optionally i
   ### OpenCV
   ### webp (img2webp)
   ```console
-    apt install webp
+apt install webp
   ```
